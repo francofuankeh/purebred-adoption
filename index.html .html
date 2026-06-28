@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KittenHaven | Authorized Pedigree Association</title>
+    
+    <!-- Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #fafafa; overflow-x: hidden; scroll-behavior: smooth; padding-top: 80px; }
+        .bg-shining { background: #020617 !important; }
+
+        .sticky-nav {
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            background: #020617 !important; border-bottom: 4px solid #be185d; height: 80px; display: flex; align-items: center;
+        }
+
+        .kitten-card { border: 2px solid #000; border-radius: 2.5rem; overflow: hidden; background: white; display: flex; flex-direction: column; height: 100%; }
+        .kitten-header { background: #000; color: white; padding: 15px; text-align: center; font-size: 1.8rem; font-weight: 900; text-transform: uppercase; }
+        
+        .spec-table { display: grid; grid-template-columns: 1fr 1fr; border-top: 2px solid #000; background: #fff; }
+        .spec-cell { padding: 8px; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; font-size: 0.6rem; font-weight: 900; text-transform: uppercase; color: #64748b; }
+        .spec-value { padding: 8px; border-bottom: 1px solid #e2e8f0; font-size: 0.65rem; font-weight: 900; color: #000; text-transform: uppercase; }
+
+        .modal { display: none; position: fixed; inset: 0; background: rgba(2, 6, 23, 0.98); z-index: 3000; align-items: center; justify-content: center; padding: 20px; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; border: 3px solid #000; border-radius: 2rem; max-height: 95vh; overflow-y: auto; width: 100%; max-width: 850px; padding: 35px; position: relative; }
+
+        .line-input {
+            background: #fff !important; border: 2px solid #000 !important; border-bottom: 5px solid #000 !important; 
+            border-radius: 1rem !important; padding: 12px 15px !important; font-weight: 700 !important; color: #000 !important; width: 100%; outline: none;
+        }
+        .line-label { font-size: 0.85rem; font-weight: 800; color: #1e293b; margin-top: 15px; display: block; text-transform: uppercase; }
+        .req-star { color: #ef4444; margin-left: 3px; }
+
+        #mobile-menu { 
+            display: none; position: fixed; inset: 0; background: #020617 !important; 
+            z-index: 9999; flex-direction: column; align-items: center; justify-content: center; padding: 40px;
+        }
+        #mobile-menu.active { display: flex; }
+        #mobile-menu button, #mobile-menu a { margin-bottom: 20px; color: white !important; font-weight: 900; text-transform: uppercase; font-size: 1.1rem; }
+
+        .policy-section { border-bottom: 2px solid #e2e8f0; padding-bottom: 25px; margin-bottom: 25px; }
+        .policy-section h4 { font-weight: 900; text-transform: uppercase; color: #be185d; margin-bottom: 12px; font-size: 1.1rem; border-left: 5px solid #be185d; padding-left: 10px; }
+        .process-box { border: 4px solid #be185d; border-radius: 2.5rem; padding: 25px; margin-bottom: 35px; background: #fff1f2; text-align: left; }
+        .section-header-tag { background: #000; color: #fff; padding: 4px 10px; font-size: 0.65rem; font-weight: 900; text-transform: uppercase; display: block; border-bottom: 2px solid #000; }
+        
+        .home-float {
+            position: fixed; bottom: 20px; right: 20px; z-index: 5000;
+            background: #fff; border: 3px solid #000; padding: 12px;
+            border-radius: 50%; width: 60px; height: 60px;
+            display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
+        }
+    * { box-shadow: none !important; text-shadow: none !important; transform: none !important; transition: none !important; }
+            /* 🌸 PAYMENT BUTTON EFFECTS 🔐 */
+.pay-option {
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+}
+/* Turns pink when hovered or touched */
+.pay-option:hover, .pay-option:active {
+    background-color: #be185d !important;
+    color: white !important;
+    border-color: #000000 !important;
+}
+    </style>
+</head>
+<body class="text-slate-900">
+
+    <a href="#home" onclick="closeModal()" class="home-float">🏠</a>
+
+    <!-- GLOBAL NAVIGATION -->
+    <nav class="sticky-nav px-6">
+        <div class="max-w-7xl mx-auto w-full flex justify-between items-center text-white">
+            <a href="#home" onclick="closeModal()" class="font-black text-2xl tracking-tighter">KittenHaven🐾</a>
+            <div class="hidden lg:flex items-center space-x-4 text-[8px] font-bold uppercase tracking-[0.2em]">
+                <a href="#home" onclick="closeModal()">Home</a>
+                <button onclick="openModal('modal-delivery')">🚚 Delivery Hub</button>
+                <button onclick="openModal('modal-status')">Tracking</button>
+                <button onclick="openModal('modal-privacy')" class="text-blue-400 font-black">Privacy & Policy</button>
+                <button onclick="openModal('modal-contact')">Contact Us</button>
+                <button onclick="openModal('payment-section')">Payment</button>
+                <button onclick="openModal('apply-section')" class="text-white bg-pink-600 px-5 py-2 rounded-full font-black border-2 border-white">APPLY HERE</button>
+                <a href="#browse" class="text-blue-400 font-black border-2 border-blue-400 px-4 py-1 rounded-full ml-2">Inventory</a>
+            </div>
+            <button onclick="toggleMenu()" class="lg:hidden font-black text-xs border-4 border-white px-4 py-2 rounded-xl">MENU ☰</button>
+        </div>
+    </nav>
+
+    <!-- MOBILE MENU -->
+    <div id="mobile-menu">
+        <button onclick="toggleMenu()" class="text-pink-500 font-black text-2xl mb-10 underline decoration-white underline-offset-8">← BACK</button>
+        <button onclick="toggleMenu(); closeModal()">HOME</button>
+        <button onclick="toggleMenu(); openModal('modal-delivery')">🚚 DELIVERY HUB</button>
+        <button onclick="toggleMenu(); openModal('modal-status')">TRACKING CENTER</button>
+        <button onclick="toggleMenu(); openModal('modal-privacy')" class="text-blue-400">PRIVACY & POLICY</button>
+        <button onclick="toggleMenu(); openModal('modal-contact')">CONTACT US</button>
+        <button onclick="toggleMenu(); openModal('payment-section')">PAYMENT METHODS</button>
+        <button onclick="toggleMenu(); openModal('apply-section')" class="bg-pink-600 text-white px-10 py-3 rounded-2xl border-2 border-white">APPLY HERE</button>
+        <a href="#browse" onclick="toggleMenu()" class="text-blue-400 font-black">VIEW INVENTORY</a>
+    </div>
+
+    <main>
+        <section id="home" class="bg-shining min-h-[75vh] flex flex-col items-center justify-center p-8 text-center text-white">
+            <h1 class="text-6xl md:text-[8rem] font-black tracking-tighter leading-none mb-6 italic">Purebred <span class="text-pink-400">Excellence.</span></h1>
+            <p class="text-lg text-blue-300 uppercase tracking-[0.5em] mb-12 italic underline underline-offset-8 decoration-pink-500 font-black">Authorized National Pedigree Association</p>
+            <a href="#browse" class="bg-white text-black px-12 py-5 rounded-2xl font-black text-lg uppercase border-4 border-black">Explore Gallery</a>
+        </section>
+
+        <section id="browse" class="py-24 bg-slate-100 px-6">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="text-5xl font-black mb-16 uppercase italic text-center underline decoration-pink-500 underline-offset-[15px]">Elite Inventory</h2>
+                <div id="kitten-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 text-center"></div>
+            </div>
+        </section>
+
+        <footer class="bg-black text-white py-24 text-center border-t-8 border-pink-700">
+            <h3 class="text-4xl font-black mb-6 italic tracking-widest uppercase text-pink-500">KittenHaven🐾</h3>
+            <p class="text-slate-500 font-black uppercase text-[10px] tracking-[0.5em]">&copy; 2026 Authorized National Pedigree Hub.</p>
+        </footer>
+    </main>
+
+    <!-- MODAL: DELIVERY HUB (11 POINTS) -->
+    <div id="modal-delivery" class="modal">
+        <div class="modal-content">
+            <button onclick="closeModal()" class="absolute top-6 right-6 font-black text-xl">✕</button>
+            <h2 class="text-4xl font-black uppercase mb-4 italic text-center text-blue-600">🚚 Delivery Hub Information</h2>
+            
+            <div class="space-y-6 text-left font-bold text-slate-800">
+                <div class="policy-section">
+                    <h4>🐾 1. Delivery Methods</h4>
+                    <p class="text-xs">Ground Delivery, Air Cargo, Airport Handover, Professional Pet Courier, Local Pickup.</p>
+                </div>
+                <div class="policy-section">
+                    <h4>🐾 2. Delivery Hub System</h4>
+                    <p class="text-xs">Central organizing point for couriers, travel docs, health certificates, and tracking.</p>
+                </div>
+                <div class="policy-section">
+                    <h4>🐾 3. Delivery Process</h4>
+                    <p class="text-xs">Confirm Adoption → Select Method → Health Prep → Hub Coordination → Travel → Arrival Confirmation.</p>
+                </div>
+                <div class="policy-section">
+                    <h4>🐾 4. Buyer Instructions</h4>
+                    <p class="text-xs">Provide accurate info, keep phone active, bring valid ID, sign release form.</p>
+                </div>
+                <div class="policy-section">
+                    <h4>🐾 5. Shipping Costs</h4>
+                    <p class="text-xs">Non-refundable. Based on distance, airline pricing, and courier availability.</p>
+                </div>
+                <div class="policy-section">
+                    <h4>🐾 6. Safety Standards</h4>
+                    <p class="text-xs">Temperature-controlled, airline-approved ventilated carriers, hydration, and comfort pads.</p>
+                </div>
+                <div class="policy-section">
+                    <h4>🐾 10. Live Tracking</h4>
+                    <p class="text-xs">Once kitten is in transit, receive Tracking #, Courier name, and Live Location updates.</p>
+                </div>
+                <div class="p-4 bg-blue-50 border-2 border-blue-600 rounded-2xl">
+                    <p class="font-black uppercase text-blue-700">📞 Delivery Support</p>
+                    <p class="text-[11px]">WhatsApp Delivery Team: +1 (856) 620-4449 (8am - 10pm)</p>
+                </div>
+            </div>
+            <button onclick="closeModal()" class="w-full mt-6 bg-black text-white py-4 rounded-xl font-black uppercase text-xs">Close Hub</button>
+        </div>
+    </div>
+
+    <!-- MODAL: PRIVACY & POLICY (THE FULL PITCH) -->
+    <div id="modal-privacy" class="modal">
+        <div class="modal-content text-left">
+            <button onclick="closeModal()" class="absolute top-6 right-6 font-black text-xl">✕</button>
+            <h2 class="text-3xl font-black uppercase mb-8 italic text-center underline decoration-pink-500">Full Policy Hub</h2>
+            <div class="space-y-6">
+                <div class="policy-section"><h4>🔒 Privacy Policy</h4><p class="text-xs font-bold leading-relaxed">We collect Name, Email, Phone, Address, and Household details. Data is stored securely, accessed only by authorized team members, and NEVER shared with third parties.</p></div>
+                <div class="policy-section"><h4>📜 Terms & Conditions</h4><p class="text-xs font-bold leading-relaxed">Application does not guarantee approval. Reservation fees are non-refundable. All kittens must visit a vet within 72 hours of arrival. No resale or surrender allowed.</p></div>
+                <div class="policy-section"><h4>🐾 Adoption Policy</h4><p class="text-xs font-bold leading-relaxed">By adopting, you agree to provide proper housing, quality food, and lifelong vet care. You enter a legal and binding adoption contract with KittenHaven.</p></div>
+                <div class="policy-section"><h4>💰 Refund Policy</h4><p class="text-xs font-bold leading-relaxed">Refunds are only issued if the breeder cancels the adoption. Reservation fees are non-refundable. Sales final once kitten is delivered.</p></div>
+                <div class="p-4 bg-slate-900 text-white rounded-2xl text-[10px] font-bold">
+                    "By adopting through our website, you agree to provide lifelong care and respect our payment and delivery policies."
+                </div>
+            </div>
+            <button onclick="closeModal()" class="w-full mt-6 bg-black text-white py-4 rounded-xl font-black uppercase text-xs">Accept & Confirm Agreement</button>
+        </div>
+    </div>
+
+    <!-- 📝 MODAL: APPLICATION (THE FULL 35 SLOTS) 🔐 -->
+<div id="apply-section" class="modal">
+    <div class="modal-content">
+        <button onclick="closeModal()" class="absolute top-6 right-6 font-black text-xl">✕</button>
+        <h2 class="text-5xl font-black uppercase italic text-center mb-8">Adoption Intake</h2>
+
+        <!-- ADOPTION PROCESS BOX -->
+        <div class="process-box">
+            <h3 class="text-pink-600 font-black text-sm uppercase italic mb-2">Adoption Process:</h3>
+            <div class="process-steps text-[11px] font-bold text-slate-700">
+                1. Complete this official application form.<br>
+                2. Wait for verification and phone screening.<br>
+                3. Place secure deposit to reserve your kitten.<br>
+                4. Coordination of home delivery or pickup.
+            </div>
+        </div>
+
+        <form id="adoptionForm" class="space-y-2 text-left">
+            
+            <!-- STAGE 1: PERSONAL IDENTITY -->
+            <div class="stage-banner">Stage 1: Identity & Contact</div>
+            
+            <label class="line-label">Last Name <span class="req-star">*</span></label>
+            <input type="text" name="last_name" placeholder="Enter your last name" required class="line-input">
+
+            <label class="line-label">First Name <span class="req-star">*</span></label>
+            <input type="text" name="first_name" placeholder="Enter your first name" required class="line-input">
+
+            <label class="line-label">Email <span class="req-star">*</span></label>
+            <input type="email" name="email" placeholder="Valid Email Address" required class="line-input">
+
+            <label class="line-label">Confirm Email <span class="req-star">*</span></label>
+            <input type="email" name="confirm_email" placeholder="Please confirm email" required class="line-input">
+
+            <label class="line-label">Street Address <span class="req-star">*</span></label>
+            <input type="text" name="address" placeholder="Street Address with number" required class="line-input">
+
+            <div class="grid grid-cols-2 gap-4">
+                <div><label class="line-label">City <span class="req-star">*</span></label><input type="text" name="city" placeholder="City" required class="line-input"></div>
+                <div><label class="line-label">State <span class="req-star">*</span></label><input type="text" name="state" placeholder="State" required class="line-input"></div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div><label class="line-label">Zip <span class="req-star">*</span></label><input type="text" name="zip" placeholder="5 digit zip code" required class="line-input"></div>
+                <div><label class="line-label">Country <span class="req-star">*</span></label><input type="text" name="country" placeholder="Enter Country" required class="line-input"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><label class="line-label">Primary Phone <span class="req-star">*</span></label><input type="tel" name="phone_primary" placeholder="Phone with area code..." required class="line-input"></div>
+                <div><label class="line-label">Secondary Phone</label><input type="tel" name="phone_secondary" placeholder="Phone with area code..." class="line-input"></div>
+            </div>
+
+            <label class="line-label">How did you hear about or find us? <span class="req-star">*</span></label>
+            <select name="referral" required class="line-input">
+                <option value="">Select an option...</option>
+                <option>Google</option><option>Facebook</option><option>Instagram</option><option>Friend/Family</option>
+            </select>
+
+            <!-- STAGE 2: HOUSEHOLD & LIFESTYLE -->
+            <div class="stage-banner mt-10">Stage 2: Home & Preferences</div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="line-label">Kitten gender preference? <span class="req-star">*</span></label>
+                    <select name="gender_pref" required class="line-input"><option value="">Select...</option><option>Male</option><option>Female</option><option>No Preference</option></select>
+                </div>
+                <div>
+                    <label class="line-label">Plan to breed this cat? <span class="req-star">*</span></label>
+                    <select name="breeding_plan" required class="line-input"><option value="">Select...</option><option>Yes</option><option>No</option></select>
+                </div>
+            </div>
+
+            <label class="line-label">Would you spay or neuter your cat? <span class="req-star">*</span></label>
+            <select name="spay_neuter" required class="line-input"><option value="">Select an option...</option><option>Yes</option><option>No</option></select>
+
+            <label class="line-label">Which kitten interested in? <span class="req-star">*</span></label>
+            <select name="kitten_choice" id="kitten_dropdown" required class="line-input"></select>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><label class="line-label">Ever raised a kitten? *</label><select name="raised_before" required class="line-input"><option value="">Select...</option><option>Yes</option><option>No</option></select></div>
+                <div><label class="line-label">Have pets now? *</label><select name="has_pets" required class="line-input"><option value="">Select...</option><option>Yes</option><option>No</option></select></div>
+            </div>
+
+            <label class="line-label">If so, what kind?</label>
+            <input type="text" name="current_pets" placeholder="Name all pets you have currently" class="line-input">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><label class="line-label">Household size? *</label><input type="number" name="household_size" placeholder="Number" required class="line-input"></div>
+                <div><label class="line-label">Have children? *</label><select name="has_children" required class="line-input"><option value="">Select...</option><option>Yes</option><option>No</option></select></div>
+            </div>
+
+            <label class="line-label">If yes, what are their ages?</label>
+            <input type="text" name="children_ages" placeholder="List ages..." class="line-input">
+
+            <label class="line-label">Is someone home during the day? <span class="req-star">*</span></label>
+            <select name="someone_home" required class="line-input"><option value="">Select...</option><option>Yes</option><option>No</option></select>
+
+            <label class="line-label">If not, where will kitten be kept while out?</label>
+            <input type="text" name="away_plan" placeholder="Where will you keep the kitten" class="line-input">
+
+            <label class="line-label">What type of home do you live in? <span class="req-star">*</span></label>
+            <select name="home_type" required class="line-input"><option value="">Select...</option><option>House</option><option>Apartment</option><option>Condo</option></select>
+
+            <label class="line-label">Where will kitten spend most time at home? <span class="req-star">*</span></label>
+            <input type="text" name="main_area" placeholder="Describe the main area" required class="line-input">
+
+            <label class="line-label">Fenced yard or enclosure description? <span class="req-star">*</span></label>
+            <input type="text" name="yard_desc" placeholder="Type of fence, size of yard, etc" required class="line-input">
+
+            <!-- STAGE 3: SECURITY & IDENTIFICATION -->
+            <div class="stage-banner mt-10">Stage 3: Security & Identity Verification</div>
+            
+            <p class="text-[11px] font-bold text-slate-700 bg-blue-50 p-4 rounded-xl border border-blue-200 leading-relaxed italic text-center mb-4">
+                For your security and confirmation, please kindly scan any of the identification options listed above (such as your ID card or driver’s license). This helps us verify your details quickly and safely.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="line-label">Date of Birth <span class="req-star">*</span></label>
+                    <input type="date" id="dob_input" name="dob" required class="line-input">
+                </div>
+                <div>
+                    <label class="line-label">ID Document Type <span class="req-star">*</span></label>
+                    <select name="id_type" required class="line-input">
+                        <option value="">Select ID Type...</option>
+                        <option>Driver's License</option><option>Passport</option><option>State ID Card</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="line-label">ID / License Number <span class="req-star">*</span></label>
+                    <input type="text" name="id_number" placeholder="Enter Document Number" required class="line-input">
+                </div>
+                <div>
+                    <label class="line-label">ID Expiration Date <span class="req-star">*</span></label>
+                    <input type="date" name="id_expiration" required class="line-input">
+                </div>
+            </div>
+
+            <label class="line-label">Issuing Authority / State <span class="req-star">*</span></label>
+            <input type="text" name="id_authority" placeholder="e.g. California DMV" required class="line-input">
+
+            <!-- 📸 SCANNER -->
+            <div class="p-6 border-2 border-dashed border-slate-400 rounded-2xl bg-slate-50 text-center mt-4">
+                <p class="text-[10px] font-black uppercase text-slate-500 mb-2">📸 Live Identification Slot</p>
+                <input type="file" name="id_scan" accept="image/*" capture="environment" class="hidden" id="id_upload">
+                <button type="button" onclick="document.getElementById('id_upload').click()" class="bg-white border-2 border-black px-8 py-2 rounded-xl font-black text-xs uppercase">Scan ID Card / License</button>
+            </div>
+
+            <!-- LEGAL CHECKBOX -->
+            <div class="flex items-center gap-4 py-8 border-y-2 border-black my-4 text-left">
+                <input type="checkbox" required class="w-10 h-10 accent-pink-600">
+                <p class="text-[10px] font-black uppercase text-slate-800 leading-tight">
+                    You must agree to provide proper housing, food, and veterinary care for its lifetime. <span class="req-star">*</span> [ I agree ]
+                </p>
+            </div>
+
+            <label class="line-label">Have you ever owned a British Shorthair before? *</label>
+            <select name="owned_bsh" required class="line-input"><option value="">Select...</option><option>Yes</option><option>No</option></select>
+
+            <label class="line-label">When are you wanting a kitten? *</label>
+            <input type="text" name="timeline" placeholder="When will you be ready to take kitten?" required class="line-input">
+
+            <label class="line-label">Anything else you'd like us to know?</label>
+            <textarea name="notes" rows="4" placeholder="Extra questions or info" class="line-input"></textarea>
+
+            <p class="text-[11px] font-bold text-slate-500 italic pt-6 uppercase text-center">NOTE: Once you click "Submit", your information will be sent and we will get back to you as soon as possible.</p>
+            
+            <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white py-6 rounded-2xl font-black uppercase text-xl mt-6">Submit Application</button>
+        </form>
+    </div>
+</div>
+    <!-- MODAL: CONTACT CENTER -->
+    <div id="modal-contact" class="modal">
+        <div class="modal-content text-center">
+            <button onclick="closeModal()" class="absolute top-6 right-6 font-black text-xl">✕</button>
+            <h2 class="text-4xl font-black uppercase mb-10 italic">Contact Center</h2>
+            <div class="space-y-6">
+                <a href="mailto:adorablekittensforadoption113@gmail.com" class="block p-6 border-2 border-black rounded-2xl bg-slate-50 hover:bg-slate-100 transition-colors">
+                    <p class="text-[10px] font-black uppercase text-slate-400 mb-1">Click to Email Authorized Office</p>
+                    <p class="font-black text-lg">adorablekittensforadoption113@gmail.com</p>
+                </a>
+                <a href="https://wa.me/18566204449" target="_blank" class="block p-6 border-2 border-green-600 rounded-2xl bg-green-50 hover:bg-green-100 transition-colors font-black">
+                    <p class="text-[10px] font-black uppercase text-green-600 mb-1">Click to Message WhatsApp</p>
+                    <p class="font-black text-xl text-green-700 underline">+1 (856) 620-4449</p>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 💳 MODAL: PAYMENT HUB (CHIME PRIORITY) 🔐 -->
+<div id="payment-section" class="modal">
+    <div class="modal-content text-center">
+        <button onclick="closeModal()" class="absolute top-6 right-6 font-black text-xl">✕</button>
+        <h2 class="text-4xl font-black uppercase mb-10 italic text-center">Payment Methods</h2>
+        
+        <!-- 🏆 PRIME OPTION: CHIME -->
+        <div class="p-8 border-4 border-blue-600 bg-blue-50 rounded-[2.5rem] mb-10 text-center font-black italic">
+            <h3 class="text-2xl text-blue-900 uppercase">🏆 Recommended: CHIME</h3>
+            <p class="text-xs text-blue-700 mt-2 uppercase tracking-widest font-black">Best Way • Best Option • Maximum Security • Verified Transfer</p>
+            <button onclick="goToWhatsApp('Chime')" class="pay-option mt-4 w-full bg-blue-600 text-white py-4 rounded-xl uppercase font-black">Pay via Chime (Best Way)</button>
+        </div>
+
+        <!-- OTHER METHODS -->
+        <div class="grid grid-cols-2 gap-4 text-center font-black uppercase text-sm">
+            <button onclick="goToWhatsApp('Zelle')" class="pay-option p-4 border-2 border-black rounded-xl">Zelle</button>
+            <button onclick="goToWhatsApp('PayPal')" class="pay-option p-4 border-2 border-black rounded-xl">PayPal</button>
+            <button onclick="goToWhatsApp('Venmo')" class="pay-option p-4 border-2 border-black rounded-xl">Venmo</button>
+            <button onclick="goToWhatsApp('Cash App')" class="pay-option p-4 border-2 border-black rounded-xl">Cash App</button>
+            <button onclick="goToWhatsApp('Apple Pay')" class="pay-option p-4 border-2 border-blue-900 bg-blue-100 col-span-2 rounded-xl text-blue-900">Authorized Apple Pay</button>
+        </div>
+        
+        <p class="text-[9px] font-bold text-slate-400 mt-6 uppercase leading-tight">
+            🛡️ All payments are verified manually by our Care Agents via WhatsApp for your security.
+        </p>
+    </div>
+</div>
+    <!-- MODAL: TRACKING (DOWNLOAD SPACE) -->
+    <div id="modal-status" class="modal">
+        <div class="modal-content text-center">
+            <button onclick="closeModal()" class="absolute top-6 right-6 font-black text-xl">✕</button>
+            <h2 class="text-4xl font-black uppercase mb-8 italic">Tracking Center</h2>
+            <div class="space-y-4">
+                <input type="email" id="search_email" placeholder="Registered Email" class="line-input text-center">
+                <input type="text" id="search_id" placeholder="KIT-XXXXXX" class="line-input text-center uppercase">
+                <button onclick="checkStatus()" class="w-full bg-black text-white py-6 rounded-2xl font-black uppercase text-xl">Retrieve Status</button>
+            </div>
+            <div id="status-results" class="hidden mt-10 p-10 bg-black text-white rounded-[2.5rem] text-left border-l-8 border-pink-500 min-h-[120px] flex flex-col justify-center">
+                <h4 id="res_name" class="text-2xl font-black mb-2 uppercase"></h4>
+                <p id="res_message" class="font-bold text-slate-300 italic"></p>
+                <div id="download-area" class="hidden mt-8 pt-8 border-t border-slate-700 w-full text-center">
+                    <p class="text-[10px] font-black uppercase text-green-400 mb-4 tracking-widest">✅ Reservation Confirmed & Paid</p>
+                    <button id="btnDownloadPDF" class="w-full bg-pink-600 py-5 rounded-2xl font-black uppercase text-sm border-2 border-white">Download Adoption Pack (PDF)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, push, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        const firebaseConfig = { databaseURL: "https://kittenhaven-default-rtdb.firebaseio.com/" };
+        const app = initializeApp(firebaseConfig); const db = getDatabase(app);
+        window.toggleMenu = () => { document.getElementById('mobile-menu').classList.toggle('active'); };
+        window.openModal = (id) => { document.getElementById(id).classList.add('active'); };
+        window.closeModal = () => { document.querySelectorAll('.modal').forEach(m => m.classList.remove('active')); };
+
+        /* 🐾 FULL DATABASE (28 ENTRIES) */
+        const kittenData = [
+            { name: "Oliver", id: "KIT-101", age: "10 weeks", sex: "Male", breed: "MaineCoon", vaccination: "Full", vetCheck: "Yes", diet: "Royal Canin", temperament: "Playful", mother: "Bella", father: "Arthur", fee: "$190", deposit: "$140", img: "Kitten1.jpg" },
+            { name: "Luna", id: "KIT-102", age: "7 weeks", sex: "Female", breed: "Maine Coon", vaccination: "Full", vetCheck: "Yes", diet: "Purina Pro", temperament: "Cuddly", mother: "Elsa", father: "Thor", fee: "$175", deposit: "$125", img: "Kitten2.jpg" },
+            { name: "Leo", id: "KIT-103", age: "6 weeks", sex: "Male", breed: "British Shorthair", vaccination: "Full", vetCheck: "Yes", diet: "Royal Canin", temperament: "Energetic", mother: "Bella", father: "Arthur", fee: "$160", deposit: "$125", img: "Kitten3.jpg" },
+            { name: "Bella", id: "KIT-104", age: "6 weeks", sex: "Female", breed: "British Shorthair", vaccination: "1st Round", vetCheck: "Yes", diet: "Royal Canin", temperament: "Calm", mother: "Chloe", father: "Arthur", fee: "$160", deposit: "$125", img: "Kitten4.jpg" },
+            { name: "Milo", id: "KIT-105", age: "13 weeks", sex: "Male", breed: "Siamese", vaccination: "Full", vetCheck: "Yes", diet: "Royal Canin", temperament: "Curious", mother: "Chloe", father: "Arthur", fee: "$210", deposit: "$170", img: "Kitten5.jpg" },
+            { name: "Daisy", id: "KIT-106", age: "8 weeks", sex: "Female", breed: "MaineCoon", vaccination: "Full", vetCheck: "Yes", diet: "Hills", temperament: "Sweet", mother: "Sophie", father: "Prince", fee: "$180", deposit: "$140", img: "Kitten6.jpg" },
+            { name: "Charlie", id: "KIT-107", age: "8 weeks", sex: "Male", breed: "MaineCoon", vaccination: "Pending", vetCheck: "Yes", diet: "Royal Canin", temperament: "Friendly", mother: "Misty", father: "Arthur", fee: "$180", deposit: "$135", img: "Kitten7.jpg" },
+            { name: "Lucy", id: "KIT-108", age: "9 weeks", sex: "Female", breed: "BritishShorthair", vaccination: "Full", vetCheck: "Yes", diet: "Purina", temperament: "Loyal", mother: "Luna Sr", father: "Thor", fee: "$160", deposit: "$110", img: "Kitten8.jpg" },
+            { name: "Simba", id: "KIT-109", age: "9 weeks", sex: "Male", breed: "BritishShorthair", vaccination: "Full", vetCheck: "Yes", diet: "Purina", temperament: "Brave", mother: "Luna Sr", father: "Thor", fee: "$155", deposit: "$105", img: "Kitten9.jpg" },
+            { name: "Chloe", id: "KIT-110", age: "7 weeks", sex: "Female", breed: "BritishShorthair", vaccination: "Full", vetCheck: "Yes", diet: "Blue Buffalo", temperament: "Vocal", mother: "Sia", father: "Khan", fee: "$205", deposit: "$175", img: "Kitten10.jpg" },
+            { name: "Jack", id: "KIT-111", age: "8 weeks", sex: "Male", breed: "BritishShorthair", vaccination: "Full", vetCheck: "Yes", diet: "Purina", temperament: "Gentle", mother: "Queen", father: "Thor", fee: "$155", deposit: "$105", img: "Kitten11.jpg" },
+            { name: "Sophie", id: "KIT-112", age: "8 weeks", sex: "Female", breed: "BritishShorthair", vaccination: "Full", vetCheck: "Yes", diet: "Blue Buffalo", temperament: "Independent", mother: "Sia", father: "Khan", fee: "$150", deposit: "$100", img: "Kitten12.jpg" },
+            { name: "Loki", id: "KIT-113", age: "8 weeks", sex: "Male", breed: "BritishShorthair", vaccination: "Full", vetCheck: "Yes", diet: "Iams", temperament: "Silly", mother: "Freya", father: "Odin", fee: "$160", deposit: "$110", img: "Kitten13.jpg" },
+            { name: "Lily", id: "KIT-114", age: "18 weeks", sex: "Female", breed: "NorwegianForest", vaccination: "Full", vetCheck: "Yes", diet: "Royal Canin", temperament: "Quiet", mother: "Misty", father: "Arthur", fee: "$270", deposit: "$200", img: "Kitten14.jpg" },
+            { name: "Jasper", id: "KIT-115", age: "7 weeks", sex: "Male", breed: "Ragdoll", vaccination: "Full", vetCheck: "Yes", diet: "Royal Canin", temperament: "Adventurous", mother: "Misty", father: "Arthur", fee: "$180", deposit: "$145", img: "Kitten15.jpg" },
+            { name: "Lola", id: "KIT-116", age: "7 weeks", sex: "Female", breed: "Ragdoll", vaccination: "Full", vetCheck: "Yes", diet: "Purina", temperament: "Happy", mother: "Queen", father: "Thor", fee: "$180", deposit: "$135", img: "Kitten16.jpg" },
+            { name: "Finn", id: "KIT-117", age: "7 weeks", sex: "Male", breed: "Ragdoll", vaccination: "Full", vetCheck: "Yes", diet: "Purina", temperament: "Gentle", mother: "Queen", father: "Thor", fee: "$185", deposit: "$150", img: "Kitten17.jpg" },
+            { name: "Mia", id: "KIT-118", age: "8 weeks", sex: "Female", breed: "MaineCoon", vaccination: "Full", vetCheck: "Yes", diet: "Hills", temperament: "Playful", mother: "Sophie", father: "Prince", fee: "$160", deposit: "$125", img: "Kitten18.jpg" },
+            { name: "Oscar", id: "KIT-119", age: "8 weeks", sex: "Male", breed: "MaineCoon", vaccination: "Full", vetCheck: "Yes", diet: "Hills", temperament: "Cuddly", mother: "Sophie", father: "Prince", fee: "$165", deposit: "$120", img: "Kitten19.jpg" },
+            { name: "Rosie", id: "KIT-120", age: "8 weeks", sex: "Female", breed: "MaineCoon", vaccination: "Full", vetCheck: "Yes", diet: "Hills", temperament: "Elegant", mother: "Sophie", father: "Prince", fee: "$160", deposit: "$115", img: "Kitten20.jpg" },
+            { name: "Toby", id: "KIT-121", age: "11 weeks", sex: "Male", breed: "MaineCoon", vaccination: "Full", vetCheck: "Yes", diet: "Iams", temperament: "Loyal", mother: "Freya", father: "Odin", fee: "$170", deposit: "$140", img: "Kitten21.jpg" },
+            { name: "Nala", id: "KIT-122", age: "8 weeks", sex: "Female", breed: "BritishShorthair", vaccination: "Full", vetCheck: "Yes", diet: "Purina", temperament: "Bold", mother: "Queen", father: "Thor", fee: "$1,155", deposit: "$110", img: "Kitten22.jpg" },
+            { name: "Felix", id: "KIT-123", age: "10 weeks", sex: "Male", breed: "BritishShorthair", vaccination: "Full", vetCheck: "Yes", diet: "Purina", temperament: "Curious", mother: "Luna Sr", father: "Thor", fee: "$150", deposit: "$105", img: "Kitten23.jpg" },
+            { name: "Zeus", id: "KIT-124", age: "13 weeks", sex: "Male", breed: "Siamese", vaccination: "Full", vetCheck: "Yes", diet: "Hills", temperament: "Gentle", mother: "Sophie", father: "Prince", fee: "$210", deposit: "$270", img: "Kitten24.jpg" },
+            { name: "Mocha", id: "KIT-125", age: "7 weeks", sex: "Female", breed: "MaineCoon", vaccination: "Full", vetCheck: "Yes", diet: "Royal Canin", temperament: "Sweet", mother: "Bella", father: "Arthur", fee: "$150", deposit: "$105", img: "Kitten25.jpg" },
+            { name: "Shadow", id: "KIT-126", age: "9 weeks", sex: "Male", breed: "Maine Coon", vaccination: "Full", vetCheck: "Yes", diet: "Purina", temperament: "Adventurous", mother: "Elsa", father: "Thor", fee: "$155", deposit: "$120", img: "Kitten26.jpg" },
+            { name: "Pearl", id: "KIT-127", age: "8 weeks", sex: "Female", breed: "British longhair", vaccination: "Full", vetCheck: "Yes", diet: "Hills", temperament: "Cuddly", mother: "Sophie", father: "Prince", fee: "$140", deposit: "$100", img: "Kitten27.jpg" },
+            { name: "Bandit", id: "KIT-128", age: "7 weeks", sex: "Male", breed: "BritishShorthair", vaccination: "Full", vetCheck: "Yes", diet: "Blue Buffalo", temperament: "Vocal", mother: "Sia", father: "Khan", fee: "$140", deposit: "$95", img: "Kitten28.jpg" }
+        ];
+
+        const grid = document.getElementById('kitten-grid');
+        const dropdown = document.getElementById('kitten_dropdown');
+        function renderKittens() {
+            grid.innerHTML = '';
+            kittenData.forEach((k) => {
+                const opt = document.createElement('option'); opt.value = k.name; opt.innerText = `${k.name} (${k.breed})`; dropdown.appendChild(opt);
+                const card = document.createElement('div'); card.className = "kitten-card";
+                card.innerHTML = `
+                    <div class="kitten-header">${k.name}</div>
+                    <img src="${k.img}" class="w-full h-72 object-cover bg-slate-200" onerror="this.src='https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?w=500'">
+                    <div class="section-header-tag">🐾 Information</div>
+                    <div class="spec-table">
+                        <div class="spec-cell">Ref / ID</div><div class="spec-value">${k.id}</div>
+                        <div class="spec-cell">Breed</div><div class="spec-value">${k.breed}</div>
+                        <div class="spec-cell">Age / Sex</div><div class="spec-value">${k.age} / ${k.sex}</div>
+                    </div>
+                    <div class="p-3 text-[10px] font-bold space-y-1 text-left">
+                        <p>Vacs: ${k.vaccination} | Diet: ${k.diet}</p>
+                        <p>Temp: ${k.temperament} | Parents: ${k.mother} x ${k.father}</p>
+                    </div>
+                    <div class="p-5 bg-white border-t-2 border-black mt-auto text-center">
+                        <div class="flex justify-between mb-3 text-[10px] font-black uppercase">
+                            <span>Fee: <span class="text-blue-600 font-black">${k.fee}</span></span>
+                            <span>Dep: <span class="text-pink-600 font-black">${k.deposit}</span></span>
+                        </div>
+                        <button onclick="window.startAdoption('${k.name}')" class="w-full bg-black text-white py-3 rounded-xl font-black uppercase text-xs">Adopt ${k.name}</button>
+                    </div>`;
+                grid.appendChild(card);
+            });
+        }
+        renderKittens();
+        window.startAdoption = (name) => { dropdown.value = name; openModal('apply-section'); };
+        document.getElementById('adoptionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn'); btn.innerText = 'GENERATING ID...';
+            const uniqueID = "KIT-" + Math.floor(100000 + Math.random() * 900000);
+            const formData = new FormData(e.target); const data = Object.fromEntries(formData.entries());
+            data.status = 'Pending'; data.trackingID = uniqueID;
+            try { await push(ref(db, 'inquiries'), data); alert(`SUCCESS!\nID: ${uniqueID}\nSave this code.`); location.reload(); } catch (err) { alert("Error."); }
+        });
+        window.checkStatus = async () => {
+            const emailInput = document.getElementById('search_email').value.toLowerCase().trim();
+            const idInput = document.getElementById('search_id').value.toUpperCase().trim();
+            const snapshot = await get(ref(db, 'inquiries'));
+            if (snapshot.exists()) {
+                let found = false;
+                snapshot.forEach((child) => {
+                    const d = child.val(); 
+                    if (d.email.toLowerCase().trim() === emailInput && d.trackingID.toUpperCase().trim() === idInput) {
+                        found = true; document.getElementById('status-results').classList.remove('hidden');
+                        document.getElementById('res_name').innerText = d.first_name + " " + d.last_name;
+                        if(d.status.toLowerCase() === 'paid') {
+                            document.getElementById('res_message').innerText = "Status: PAID. Adoption Pack ready.";
+                            document.getElementById('download-area').classList.remove('hidden');
+                            document.getElementById('btnDownloadPDF').onclick = () => generatePDF(d);
+                        } else { document.getElementById('res_message').innerText = "Status: " + d.status.toUpperCase(); }
+                    }
+                });
+                if(!found) alert('No record.');
+            }
+        };
+        function generatePDF(userData) {
+            const { jsPDF } = window.jspdf; const doc = new jsPDF('p', 'mm', 'a4');
+            doc.setFontSize(22); doc.text("ADOPTION IDENTITY PACK", 105, 30, {align:"center"});
+            doc.setFontSize(12); doc.text(`Adopter: ${userData.first_name} ${userData.last_name}`, 20, 60);
+            doc.text(`Tracking ID: ${userData.trackingID} | Kitten: ${userData.kitten_choice}`, 20, 70);
+            doc.save(`Adoption_Pack_${userData.trackingID}.pdf`);
+        }
+    /* 📱 WHATSAPP REDIRECT LOGIC 🔐 */
+window.goToWhatsApp = (method) => {
+    const phoneNumber = "18566204449"; // Your WhatsApp Number
+    const message = `Hello KittenHaven Support, I would like to proceed with my adoption payment using ${method} as the best and secure option. Please provide the secure transfer details.`;
+    
+    // Opens WhatsApp with the auto-typed message
+    window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`, '_blank');
+};
+    </script>
+</body>
+</html>
+```🐾🔐
